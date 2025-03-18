@@ -1,6 +1,6 @@
 streamlit
 ultralytics
-opencv-python
+opencv-python-headless  # Use this instead of `opencv-python`
 numpy
 torch
 torchvision
