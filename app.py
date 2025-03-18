@@ -3,15 +3,9 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 from PIL import Image
-import os
 
-# Download YOLOv8 model if not available
-model_path = "yolov8n.pt"
-if not os.path.exists(model_path):
-    st.write("Downloading YOLOv8 model...")
-    model = YOLO("yolov8n.pt")
-else:
-    model = YOLO(model_path)
+# Load YOLOv8 model
+model = YOLO("yolov8n.pt")  # Ensure you have the correct model file
 
 st.title("🚀 YOLOv8 Object Detection App")
 
@@ -25,14 +19,20 @@ if uploaded_file is not None:
     # Perform detection
     results = model(image)
 
-    # Draw bounding boxes
+    # Draw bounding boxes with class labels
     for r in results:
-        for box in r.boxes.xyxy:
-            x1, y1, x2, y2 = map(int, box)
+        for box, cls in zip(r.boxes.xyxy, r.boxes.cls):
+            x1, y1, x2, y2 = map(int, box)  # Bounding box coordinates
+            label = model.names[int(cls)]  # Get class name
+
+            # Draw bounding box
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+            # Put label text above bounding box
+            cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Convert OpenCV image to RGB
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    
+
     # Show image in Streamlit
-    st.image(image, caption="Detected Objects", use_column_width=True)
+    st.image(image, caption="Detected Objects", use_container_width=True)
